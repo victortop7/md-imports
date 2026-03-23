@@ -1344,14 +1344,12 @@
   const searchInput = document.getElementById('searchInput');
   const searchDropdown = document.getElementById('searchDropdown');
 
-  searchInput.addEventListener('input', function() {
-    const q = this.value.trim().toLowerCase();
-    if (q.length < 2) { searchDropdown.classList.remove('open'); return; }
+  function buildDropdown(q) {
     const results = CATALOGO.filter(p =>
       p.nome.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q)
-    ).slice(0, 7);
+    ).slice(0, 8);
     if (results.length === 0) {
-      searchDropdown.innerHTML = `<div class="search-empty">Nenhum produto encontrado para "${this.value}"</div>`;
+      searchDropdown.innerHTML = `<div class="search-empty">Nenhum produto encontrado</div>`;
     } else {
       searchDropdown.innerHTML = results.map(p => `
         <a class="search-result" href="produto.html?id=${p.slug}">
@@ -1364,9 +1362,16 @@
         </a>`).join('');
     }
     searchDropdown.classList.add('open');
+  }
+
+  searchInput.addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    if (q.length < 2) { searchDropdown.classList.remove('open'); return; }
+    buildDropdown(q);
   });
 
   searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { doSearch(); searchDropdown.classList.remove('open'); }
     if (e.key === 'Escape') searchDropdown.classList.remove('open');
   });
 
@@ -1379,8 +1384,17 @@
   function doSearch() {
     const q = searchInput.value.trim().toLowerCase();
     if (!q) return;
-    const match = CATALOGO.find(p => p.nome.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q));
-    if (match) window.location.href = `produto.html?id=${match.slug}`;
+    searchDropdown.classList.remove('open');
+    // Filtra os cards na grade e rola até produtos
+    document.querySelectorAll('.produto-card').forEach(card => {
+      const nome = card.querySelector('.produto-nome').textContent.toLowerCase();
+      const marca = card.querySelector('.produto-marca').textContent.toLowerCase();
+      card.style.display = (nome.includes(q) || marca.includes(q)) ? 'block' : 'none';
+    });
+    // Marca tab "Todos" como ativo
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.filter-tab').classList.add('active');
+    document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
   }
 </script>
 </body>
