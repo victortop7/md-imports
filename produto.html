@@ -144,11 +144,37 @@
     .not-found h2 { font-size: 32px; margin-bottom: 16px; }
     .not-found p { color: var(--text-mid); margin-bottom: 32px; }
 
+    /* STICKY MOBILE CTA */
+    .sticky-cta {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+      background: rgba(8,12,18,0.97); backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,168,255,0.15);
+      padding: 12px 16px;
+      align-items: center; gap: 12px;
+    }
+    .sticky-preco { flex: 1; }
+    .sticky-preco-val { font-size: 20px; font-weight: 900; }
+    .sticky-preco-label { font-size: 11px; color: var(--text-mid); }
+    .sticky-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #25d366; color: #fff; font-size: 14px; font-weight: 800;
+      padding: 14px 20px; border-radius: 50px; border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35); white-space: nowrap;
+    }
+    .sticky-btn img { width: 22px; height: 22px; object-fit: contain; }
+
     /* MOBILE */
     @media (max-width: 768px) {
-      .produto-page { grid-template-columns: 1fr; gap: 32px; padding: 24px 16px; }
-      .prod-img-wrap { min-height: 300px; padding: 24px; }
-      .prod-img-wrap img { max-height: 260px; }
+      .produto-page { grid-template-columns: 1fr; gap: 24px; padding: 20px 16px 100px; }
+      .prod-img-wrap { min-height: 260px; padding: 20px; }
+      .prod-img-wrap img { max-height: 220px; }
+      .prod-nome { font-size: 26px; }
+      .prod-comprar { display: none; }
+      .sticky-cta { display: flex; }
+      .whatsapp-btn { display: none; }
+      .ficha-key { min-width: 110px; font-size: 12px; }
+      .ficha-val { font-size: 12px; }
     }
   </style>
 </head>
@@ -164,6 +190,17 @@
 </header>
 
 <div id="app"></div>
+
+<div class="sticky-cta" id="stickyCta">
+  <div class="sticky-preco">
+    <div class="sticky-preco-val" id="stickyPreco"></div>
+    <div class="sticky-preco-label">12x sem juros</div>
+  </div>
+  <a id="stickyBtn" href="#" target="_blank" class="sticky-btn">
+    <img src="logo%20rede%20sociais/logo%20whatsapp.png" alt="WhatsApp"/>
+    Comprar
+  </a>
+</div>
 
 <a href="https://wa.me/55850000000" target="_blank" class="whatsapp-btn">
   <img src="logo%20rede%20sociais/logo%20whatsapp.png" style="width:46px;height:46px;object-fit:contain;"/>
@@ -659,6 +696,17 @@ function render() {
 }
 
 render();
+
+// Preenche sticky CTA mobile
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const p = PRODUTOS[params.get('id')];
+  if (!p) return;
+  const msg = `Olá! Tenho interesse no ${p.nome} (${p.preco}). Pode me passar mais informações?`;
+  const link = `https://wa.me/55850000000?text=${encodeURIComponent(msg)}`;
+  document.getElementById('stickyPreco').textContent = p.preco;
+  document.getElementById('stickyBtn').href = link;
+})();
 </script>
 </body>
 </html>
