@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MD Imports — Produto</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #080c12; color: #fff; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+
+    :root {
+      --blue: #00a8ff;
+      --blue-dark: #0050cc;
+      --black: #080c12;
+      --black-2: #0f1520;
+      --black-3: #161d2e;
+      --text-mid: #a0aec0;
+      --glow: 0 0 20px rgba(0,168,255,0.3), 0 0 40px rgba(0,168,255,0.15);
+      --glow-sm: 0 0 12px rgba(0,168,255,0.25);
+    }
+
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* HEADER */
+    header {
+      background: rgba(8,12,18,0.97); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,168,255,0.12);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px; max-width: 1200px; margin: 0 auto;
+    }
+    .logo img { height: 52px; width: auto; }
+    .back-btn {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-mid); font-size: 14px; font-weight: 600;
+      border: 1px solid rgba(0,168,255,0.2); border-radius: 50px;
+      padding: 8px 18px; transition: all .2s;
+    }
+    .back-btn:hover { color: var(--blue); border-color: var(--blue); }
+
+    /* MAIN */
+    .produto-page {
+      max-width: 1100px; margin: 0 auto; padding: 48px 24px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
+      animation: fadeUp .5s ease both;
+    }
+
+    /* IMAGEM */
+    .prod-img-wrap {
+      background: linear-gradient(135deg, #0f1520 0%, #1a2035 100%);
+      border-radius: 20px; border: 1px solid rgba(0,168,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px; min-height: 420px; position: relative;
+      box-shadow: var(--glow);
+    }
+    .prod-img-wrap img {
+      max-height: 380px; width: auto; object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0,168,255,0.35));
+      animation: float 4s ease-in-out infinite;
+    }
+    .prod-badge {
+      position: absolute; top: 18px; left: 18px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color: #fff; font-size: 11px; font-weight: 800;
+      padding: 5px 14px; border-radius: 50px; letter-spacing: 1px;
+    }
+
+    /* INFO */
+    .prod-info { display: flex; flex-direction: column; gap: 20px; }
+    .prod-marca {
+      font-size: 12px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--blue);
+    }
+    .prod-nome {
+      font-size: clamp(28px, 4vw, 42px); font-weight: 900; line-height: 1.1;
+      letter-spacing: -.5px;
+    }
+    .prod-specs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .spec-tag {
+      background: rgba(0,168,255,0.1); color: var(--blue);
+      font-size: 12px; font-weight: 700; padding: 5px 14px;
+      border-radius: 50px; border: 1px solid rgba(0,168,255,0.25);
+    }
+    .prod-desc {
+      font-size: 15px; color: var(--text-mid); line-height: 1.75;
+      border-left: 3px solid rgba(0,168,255,0.3); padding-left: 16px;
+    }
+
+    /* FICHA */
+    .ficha { background: var(--black-3); border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,168,255,0.1); }
+    .ficha-title { padding: 14px 20px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); border-bottom: 1px solid rgba(0,168,255,0.1); }
+    .ficha-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ficha-row:last-child { border-bottom: none; }
+    .ficha-key { padding: 12px 20px; font-size: 13px; font-weight: 700; color: var(--text-mid); min-width: 140px; }
+    .ficha-val { padding: 12px 20px; font-size: 13px; color: #fff; }
+
+    /* PRECO + CTA */
+    .prod-comprar { display: flex; flex-direction: column; gap: 16px; }
+    .prod-preco-label { font-size: 12px; color: var(--text-mid); font-weight: 600; }
+    .prod-preco-val {
+      font-size: 40px; font-weight: 900; color: #fff;
+      line-height: 1;
+    }
+    .prod-preco-val span { font-size: 16px; color: var(--text-mid); font-weight: 500; }
+    .prod-parcela { font-size: 13px; color: var(--text-mid); margin-top: -8px; }
+
+    .btn-wpp {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: #25d366; color: #fff; font-size: 16px; font-weight: 800;
+      padding: 18px 36px; border-radius: 50px; border: none; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(37,211,102,0.35);
+      transition: transform .2s, box-shadow .2s; width: 100%;
+    }
+    .btn-wpp:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,211,102,0.5); }
+    .btn-wpp img { width: 28px; height: 28px; object-fit: contain; }
+
+    .btn-back-mob {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: transparent; color: var(--text-mid); font-size: 14px; font-weight: 600;
+      padding: 14px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer; width: 100%; transition: all .2s;
+    }
+    .btn-back-mob:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* WHATSAPP FLUTUANTE */
+    .whatsapp-btn {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      width: 72px; height: 72px; border-radius: 50%;
+      background: #25d366; box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      display: flex; align-items: center; justify-content: center;
+      animation: float 3s ease-in-out infinite;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 8px 28px rgba(37,211,102,0.5); }
+
+    /* NOT FOUND */
+    .not-found { text-align: center; padding: 100px 24px; }
+    .not-found h2 { font-size: 32px; margin-bottom: 16px; }
+    .not-found p { color: var(--text-mid); margin-bottom: 32px; }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .produto-page { grid-template-columns: 1fr; gap: 32px; padding: 24px 16px; }
+      .prod-img-wrap { min-height: 300px; padding: 24px; }
+      .prod-img-wrap img { max-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <a href="index.html"><img src="logo/logomd.png" alt="MD Imports"/></a>
+    </div>
+    <a href="index.html" class="back-btn">← Voltar ao catálogo</a>
+  </div>
+</header>
+
+<div id="app"></div>
+
+<a href="https://wa.me/55850000000" target="_blank" class="whatsapp-btn">
+  <img src="logo%20rede%20sociais/logo%20whatsapp.png" style="width:46px;height:46px;object-fit:contain;"/>
+</a>
+
+<script>
+const PRODUTOS = {
+  'redmi-note-13-pro-plus': {
+    nome: 'Redmi Note 13 Pro+', marca: 'Xiaomi', novo: true,
+    img: 'CELULARES/note 13pro+.png',
+    preco: 'R$ 2.199', parcelas: '12x de R$ 183,25 sem juros',
+    specs: ['256GB', '12GB RAM', '200MP', '5G'],
+    desc: 'O Redmi Note 13 Pro+ chega com câmera principal de 200MP e processador MediaTek Dimensity 7200 Ultra. Bateria de 5000mAh com carregamento turbo de 120W que carrega em menos de 20 minutos. Tela AMOLED de 6.67" com taxa de atualização de 120Hz.',
+    ficha: [
+      ['Processador','MediaTek Dimensity 7200 Ultra'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','200MP + 8MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 120W'],
+      ['Armazenamento','256GB'],
+      ['RAM','12GB'],
+      ['Conectividade','5G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'redmi-note-14-pro': {
+    nome: 'Redmi Note 14 Pro', marca: 'Xiaomi', novo: true,
+    img: 'CELULARES/note 14 pro.png',
+    preco: 'R$ 1.999', parcelas: '12x de R$ 166,58 sem juros',
+    specs: ['256GB', '8GB RAM', '50MP', '4G'],
+    desc: 'O Redmi Note 14 Pro combina design premium com desempenho poderoso. Câmera de 50MP com OIS, tela AMOLED de 6.67" 120Hz e bateria de 5500mAh com carregamento de 45W.',
+    ficha: [
+      ['Processador','Snapdragon 7s Gen 3'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 8MP + 2MP'],
+      ['Câmera Frontal','20MP'],
+      ['Bateria','5500mAh — Carregamento 45W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'redmi-note-14': {
+    nome: 'Redmi Note 14', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/note 14.png',
+    preco: 'R$ 1.499', parcelas: '12x de R$ 124,92 sem juros',
+    specs: ['128GB', '6GB RAM', '108MP', '4G'],
+    desc: 'O Redmi Note 14 traz câmera de 108MP, tela AMOLED de 6.67" 120Hz e bateria robusta de 5110mAh com carregamento de 33W. Ótimo custo-benefício para quem quer qualidade sem pagar caro.',
+    ficha: [
+      ['Processador','MediaTek Helio G99'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','108MP + 8MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5110mAh — Carregamento 33W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'redmi-note-14s': {
+    nome: 'Redmi Note 14S', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/note 14s.png',
+    preco: 'R$ 1.699', parcelas: '12x de R$ 141,58 sem juros',
+    specs: ['256GB', '8GB RAM', '200MP', '4G'],
+    desc: 'O Redmi Note 14S une a impressionante câmera de 200MP com 256GB de armazenamento e 8GB de RAM. Ideal para quem prioriza fotografia e espaço de armazenamento generoso.',
+    ficha: [
+      ['Processador','MediaTek Helio G99 Ultra'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','200MP + 8MP + 2MP'],
+      ['Câmera Frontal','20MP'],
+      ['Bateria','5110mAh — Carregamento 33W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'redmi-14c': {
+    nome: 'Redmi 14C', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/redmi 14c.png',
+    preco: 'R$ 899', parcelas: '12x de R$ 74,92 sem juros',
+    specs: ['128GB', '4GB RAM', '50MP', '4G'],
+    desc: 'O Redmi 14C é perfeito para quem busca um smartphone confiável com ótima bateria. Câmera de 50MP, tela de 6.88" e bateria de 5160mAh com carregamento de 18W.',
+    ficha: [
+      ['Processador','MediaTek Helio G81 Ultra'],
+      ['Tela','6.88" LCD 120Hz'],
+      ['Câmera Principal','50MP + 0.08MP'],
+      ['Câmera Frontal','13MP'],
+      ['Bateria','5160mAh — Carregamento 18W'],
+      ['Armazenamento','128GB'],
+      ['RAM','4GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.4'],
+    ]
+  },
+  'redmi-15c': {
+    nome: 'Redmi 15C', marca: 'Xiaomi', novo: true,
+    img: 'CELULARES/redmi 15c.png',
+    preco: 'R$ 999', parcelas: '12x de R$ 83,25 sem juros',
+    specs: ['128GB', '4GB RAM', '50MP', '4G'],
+    desc: 'Lançamento! O Redmi 15C traz melhorias significativas em câmera e desempenho em relação ao seu antecessor. Com tela grande e bateria duradoura, é ideal para o uso do dia a dia.',
+    ficha: [
+      ['Processador','MediaTek Helio G81 Ultra'],
+      ['Tela','6.88" LCD 120Hz'],
+      ['Câmera Principal','50MP + 0.08MP'],
+      ['Câmera Frontal','13MP'],
+      ['Bateria','5160mAh — Carregamento 18W'],
+      ['Armazenamento','128GB'],
+      ['RAM','4GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.4'],
+    ]
+  },
+  'redmi-a5': {
+    nome: 'Redmi A5', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/redmi a5.png',
+    preco: 'R$ 599', parcelas: '12x de R$ 49,92 sem juros',
+    specs: ['64GB', '3GB RAM', '8MP', '4G'],
+    desc: 'O Redmi A5 é a escolha perfeita para quem precisa de um smartphone funcional por um preço acessível. Bateria de 5000mAh que dura o dia todo e design compacto.',
+    ficha: [
+      ['Processador','Unisoc T7250'],
+      ['Tela','6.67" LCD 60Hz'],
+      ['Câmera Principal','8MP'],
+      ['Câmera Frontal','5MP'],
+      ['Bateria','5000mAh — Carregamento 10W'],
+      ['Armazenamento','64GB'],
+      ['RAM','3GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'redmi-pad-2': {
+    nome: 'Redmi Pad 2', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/redmi pad 2.png',
+    preco: 'R$ 1.299', parcelas: '12x de R$ 108,25 sem juros',
+    specs: ['128GB', '4GB RAM', 'Tablet', '90Hz'],
+    desc: 'O Redmi Pad 2 é um tablet versátil com tela de 11" 90Hz, ideal para entretenimento, estudos e trabalho. Bateria de 8000mAh que dura dias com uso moderado.',
+    ficha: [
+      ['Processador','Snapdragon 680'],
+      ['Tela','11" LCD 90Hz'],
+      ['Câmera Principal','8MP'],
+      ['Câmera Frontal','5MP'],
+      ['Bateria','8000mAh'],
+      ['Armazenamento','128GB'],
+      ['RAM','4GB'],
+      ['Conectividade','Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'redmi-pad-se': {
+    nome: 'Redmi Pad SE', marca: 'Xiaomi', novo: false,
+    img: 'CELULARES/redmi pad se.png',
+    preco: 'R$ 1.099', parcelas: '12x de R$ 91,58 sem juros',
+    specs: ['128GB', '4GB RAM', 'Tablet', '90Hz'],
+    desc: 'O Redmi Pad SE oferece ótimo custo-benefício no segmento de tablets. Tela de 11" 90Hz, quatro alto-falantes e bateria de 8000mAh para horas de entretenimento.',
+    ficha: [
+      ['Processador','Snapdragon 680'],
+      ['Tela','11" LCD 90Hz'],
+      ['Câmera Principal','8MP'],
+      ['Câmera Frontal','5MP'],
+      ['Bateria','8000mAh'],
+      ['Armazenamento','128GB'],
+      ['RAM','4GB'],
+      ['Conectividade','Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'poco-x7-pro': {
+    nome: 'POCO X7 Pro', marca: 'POCO', novo: true,
+    img: 'CELULARES/poco X7 pro.png',
+    preco: 'R$ 2.499', parcelas: '12x de R$ 208,25 sem juros',
+    specs: ['256GB', '12GB RAM', '64MP', '5G'],
+    desc: 'O POCO X7 Pro é uma potência com processador MediaTek Dimensity 8400 Ultra e tela AMOLED de 6.67" com 120Hz. Câmera de 64MP e carregamento turbo de 90W. O melhor custo-benefício no segmento premium.',
+    ficha: [
+      ['Processador','MediaTek Dimensity 8400 Ultra'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','64MP + 8MP'],
+      ['Câmera Frontal','20MP'],
+      ['Bateria','6000mAh — Carregamento 90W'],
+      ['Armazenamento','256GB'],
+      ['RAM','12GB'],
+      ['Conectividade','5G, Wi-Fi 6, Bluetooth 5.4'],
+    ]
+  },
+  'poco-f6-pro': {
+    nome: 'POCO F6 Pro', marca: 'POCO', novo: false,
+    img: 'CELULARES/poco f6 pro.png',
+    preco: 'R$ 2.799', parcelas: '12x de R$ 233,25 sem juros',
+    specs: ['512GB', '12GB RAM', '50MP', '5G'],
+    desc: 'O POCO F6 Pro é o flagship da linha com Snapdragon 8 Gen 2, tela AMOLED de 6.67" e sistema de câmera com OIS. Carregamento ultra-rápido de 120W.',
+    ficha: [
+      ['Processador','Snapdragon 8 Gen 2'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 8MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 120W'],
+      ['Armazenamento','512GB'],
+      ['RAM','12GB'],
+      ['Conectividade','5G, Wi-Fi 7, Bluetooth 5.3'],
+    ]
+  },
+  'poco-f6': {
+    nome: 'POCO F6', marca: 'POCO', novo: false,
+    img: 'CELULARES/poco f6.png',
+    preco: 'R$ 2.199', parcelas: '12x de R$ 183,25 sem juros',
+    specs: ['256GB', '8GB RAM', '50MP', '5G'],
+    desc: 'O POCO F6 traz o poderoso Snapdragon 8s Gen 3, tela AMOLED de 6.67" 120Hz e câmera de 50MP com OIS. Carregamento de 90W para você nunca parar.',
+    ficha: [
+      ['Processador','Snapdragon 8s Gen 3'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 8MP'],
+      ['Câmera Frontal','20MP'],
+      ['Bateria','5000mAh — Carregamento 90W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','5G, Wi-Fi 6, Bluetooth 5.3'],
+    ]
+  },
+  'poco-m7-pro': {
+    nome: 'POCO M7 Pro', marca: 'POCO', novo: false,
+    img: 'CELULARES/poco m7 pro.png',
+    preco: 'R$ 1.599', parcelas: '12x de R$ 133,25 sem juros',
+    specs: ['256GB', '8GB RAM', '50MP', '5G'],
+    desc: 'O POCO M7 Pro chegou para dominar o segmento intermediário com 5G, processador Dimensity 7025 Ultra, tela AMOLED de 6.67" e câmera principal de 50MP com OIS.',
+    ficha: [
+      ['Processador','MediaTek Dimensity 7025 Ultra'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 45W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','5G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'poco-m7': {
+    nome: 'POCO M7', marca: 'POCO', novo: false,
+    img: 'CELULARES/poco m7.png',
+    preco: 'R$ 1.299', parcelas: '12x de R$ 108,25 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O POCO M7 é a opção acessível da linha M com tela AMOLED de 6.67", câmera de 50MP e bateria de 5000mAh. Desempenho sólido para o dia a dia.',
+    ficha: [
+      ['Processador','Snapdragon 4 Gen 2'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','13MP'],
+      ['Bateria','5000mAh — Carregamento 18W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.1'],
+    ]
+  },
+  'poco-c75': {
+    nome: 'POCO C75', marca: 'POCO', novo: false,
+    img: 'CELULARES/POCO C75.png',
+    preco: 'R$ 999', parcelas: '12x de R$ 83,25 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O POCO C75 entrega câmera de 50MP e 6GB de RAM por um preço imbatível. Tela de 6.88" com 120Hz e bateria de 5160mAh para todo o dia.',
+    ficha: [
+      ['Processador','MediaTek Helio G85'],
+      ['Tela','6.88" LCD 120Hz'],
+      ['Câmera Principal','50MP + 0.08MP'],
+      ['Câmera Frontal','8MP'],
+      ['Bateria','5160mAh — Carregamento 18W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'poco-c85': {
+    nome: 'POCO C85', marca: 'POCO', novo: false,
+    img: 'CELULARES/poco c85.png',
+    preco: 'R$ 1.099', parcelas: '12x de R$ 91,58 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O POCO C85 é um intermediário acessível com câmera de 50MP, design moderno e bateria de 5000mAh. Perfeito para quem quer qualidade sem gastar muito.',
+    ficha: [
+      ['Processador','Snapdragon 4s Gen 2'],
+      ['Tela','6.67" LCD 120Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','8MP'],
+      ['Bateria','5000mAh — Carregamento 33W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.1'],
+    ]
+  },
+  'realme-14-pro': {
+    nome: 'Realme 14 Pro', marca: 'Realme', novo: true,
+    img: 'CELULARES/realme 14 pro.png',
+    preco: 'R$ 1.999', parcelas: '12x de R$ 166,58 sem juros',
+    specs: ['256GB', '8GB RAM', '50MP', '5G'],
+    desc: 'O Realme 14 Pro é o flagship da linha com câmera de 50MP com OIS, tela AMOLED de 6.7" 120Hz e processador Snapdragon 7s Gen 3. Carregamento SUPERVOOC de 80W.',
+    ficha: [
+      ['Processador','Snapdragon 7s Gen 3'],
+      ['Tela','6.7" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 8MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5200mAh — SUPERVOOC 80W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','5G, Wi-Fi 6, Bluetooth 5.4'],
+    ]
+  },
+  'realme-14t': {
+    nome: 'Realme 14T', marca: 'Realme', novo: true,
+    img: 'CELULARES/realme 14t.png',
+    preco: 'R$ 1.799', parcelas: '12x de R$ 149,92 sem juros',
+    specs: ['256GB', '8GB RAM', '50MP', '5G'],
+    desc: 'O Realme 14T chegou com processador Dimensity 7300X, tela AMOLED de 6.67" e câmera de 50MP. Carregamento de 67W e bateria de 5000mAh.',
+    ficha: [
+      ['Processador','MediaTek Dimensity 7300X'],
+      ['Tela','6.67" AMOLED 144Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 67W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','5G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'realme-14': {
+    nome: 'Realme 14', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme 14.png',
+    preco: 'R$ 1.499', parcelas: '12x de R$ 124,92 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O Realme 14 é um intermediário completo com câmera de 50MP, tela AMOLED e bateria de 5000mAh com carregamento de 45W. Ótimo para fotografia e desempenho.',
+    ficha: [
+      ['Processador','Snapdragon 6 Gen 1'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 45W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'realme-12': {
+    nome: 'Realme 12', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme 12.png',
+    preco: 'R$ 1.399', parcelas: '12x de R$ 116,58 sem juros',
+    specs: ['256GB', '8GB RAM', '108MP', '4G'],
+    desc: 'O Realme 12 impressiona com câmera de 108MP e design slim. Processador Helio G99, tela AMOLED de 6.72" e carregamento de 67W para não ficar sem bateria.',
+    ficha: [
+      ['Processador','MediaTek Helio G99'],
+      ['Tela','6.72" AMOLED 120Hz'],
+      ['Câmera Principal','108MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 67W'],
+      ['Armazenamento','256GB'],
+      ['RAM','8GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.3'],
+    ]
+  },
+  'realme-note-70': {
+    nome: 'Realme Note 70', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme note 70.png',
+    preco: 'R$ 1.199', parcelas: '12x de R$ 99,92 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O Realme Note 70 é a escolha ideal para quem quer um celular equilibrado. Câmera de 50MP, tela AMOLED e bateria de 5000mAh com carregamento de 45W.',
+    ficha: [
+      ['Processador','MediaTek Helio G91 Max'],
+      ['Tela','6.67" AMOLED 120Hz'],
+      ['Câmera Principal','50MP + 2MP'],
+      ['Câmera Frontal','16MP'],
+      ['Bateria','5000mAh — Carregamento 45W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'realme-c75x': {
+    nome: 'Realme C75X', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme c75x.png',
+    preco: 'R$ 1.099', parcelas: '12x de R$ 91,58 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O Realme C75X traz câmera de 50MP, tela de 6.72" com 120Hz e bateria de 5000mAh. Design premium com carregamento de 45W e resistência a respingos.',
+    ficha: [
+      ['Processador','Unisoc T616'],
+      ['Tela','6.72" LCD 120Hz'],
+      ['Câmera Principal','50MP + 0.3MP'],
+      ['Câmera Frontal','8MP'],
+      ['Bateria','5000mAh — Carregamento 45W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'realme-c75': {
+    nome: 'Realme C75', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme c75.png',
+    preco: 'R$ 999', parcelas: '12x de R$ 83,25 sem juros',
+    specs: ['128GB', '6GB RAM', '50MP', '4G'],
+    desc: 'O Realme C75 é um smartphone resistente (IP54) com câmera de 50MP e carregamento de 45W. Bateria de 5000mAh e tela de 6.72" 120Hz para o dia a dia.',
+    ficha: [
+      ['Processador','Unisoc T616'],
+      ['Tela','6.72" LCD 120Hz'],
+      ['Câmera Principal','50MP + 0.3MP'],
+      ['Câmera Frontal','8MP'],
+      ['Bateria','5000mAh — Carregamento 45W'],
+      ['Armazenamento','128GB'],
+      ['RAM','6GB'],
+      ['Resistência','IP54'],
+    ]
+  },
+  'realme-c71': {
+    nome: 'Realme C71', marca: 'Realme', novo: false,
+    img: 'CELULARES/realme c71.png',
+    preco: 'R$ 799', parcelas: '12x de R$ 66,58 sem juros',
+    specs: ['64GB', '4GB RAM', '8MP', '4G'],
+    desc: 'O Realme C71 é a opção de entrada com ótima duração de bateria. Compacto, funcional e com preço acessível — perfeito para o uso básico do dia a dia.',
+    ficha: [
+      ['Processador','Unisoc T606'],
+      ['Tela','6.72" LCD 90Hz'],
+      ['Câmera Principal','8MP'],
+      ['Câmera Frontal','5MP'],
+      ['Bateria','5000mAh — Carregamento 10W'],
+      ['Armazenamento','64GB'],
+      ['RAM','4GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+  'infinix-smart-10': {
+    nome: 'Infinix Smart 10', marca: 'Infinix', novo: false,
+    img: 'CELULARES/INFINIX SMART 10.png',
+    preco: 'R$ 699', parcelas: '12x de R$ 58,25 sem juros',
+    specs: ['128GB', '4GB RAM', '13MP', '4G'],
+    desc: 'O Infinix Smart 10 é a escolha econômica sem abrir mão do essencial. Câmera de 13MP, tela de 6.6" 90Hz e bateria de 5000mAh para o dia todo.',
+    ficha: [
+      ['Processador','MediaTek Helio G36'],
+      ['Tela','6.6" LCD 90Hz'],
+      ['Câmera Principal','13MP + 0.08MP'],
+      ['Câmera Frontal','8MP'],
+      ['Bateria','5000mAh — Carregamento 18W'],
+      ['Armazenamento','128GB'],
+      ['RAM','4GB'],
+      ['Conectividade','4G, Wi-Fi, Bluetooth 5.0'],
+    ]
+  },
+};
+
+function render() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const p = PRODUTOS[id];
+  const app = document.getElementById('app');
+
+  if (!p) {
+    app.innerHTML = `
+      <div class="not-found">
+        <h2>Produto não encontrado</h2>
+        <p>Esse produto não existe ou foi removido.</p>
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;font-weight:700;padding:14px 32px;border-radius:50px;">← Voltar ao catálogo</a>
+      </div>`;
+    return;
+  }
+
+  document.title = `${p.nome} — MD Imports`;
+
+  const fichaRows = p.ficha.map(([k,v]) => `
+    <div class="ficha-row">
+      <div class="ficha-key">${k}</div>
+      <div class="ficha-val">${v}</div>
+    </div>`).join('');
+
+  const msg = `Olá! Tenho interesse no ${p.nome} (${p.preco}). Pode me passar mais informações?`;
+  const wppLink = `https://wa.me/55850000000?text=${encodeURIComponent(msg)}`;
+
+  app.innerHTML = `
+    <div class="produto-page">
+      <div class="prod-img-wrap">
+        ${p.novo ? '<span class="prod-badge">NOVO</span>' : ''}
+        <img src="${p.img}" alt="${p.nome}"/>
+      </div>
+      <div class="prod-info">
+        <div class="prod-marca">${p.marca}</div>
+        <div class="prod-nome">${p.nome}</div>
+        <div class="prod-specs">
+          ${p.specs.map(s => `<span class="spec-tag">${s}</span>`).join('')}
+        </div>
+        <p class="prod-desc">${p.desc}</p>
+        <div class="ficha">
+          <div class="ficha-title">Ficha Técnica</div>
+          ${fichaRows}
+        </div>
+        <div class="prod-comprar">
+          <div>
+            <div class="prod-preco-label">Preço</div>
+            <div class="prod-preco-val">${p.preco} <span>/12x sem juros</span></div>
+            <div class="prod-parcela">${p.parcelas}</div>
+          </div>
+          <a href="${wppLink}" target="_blank" class="btn-wpp">
+            <img src="logo%20rede%20sociais/logo%20whatsapp.png" alt="WhatsApp"/>
+            Comprar pelo WhatsApp
+          </a>
+          <a href="index.html" class="btn-back-mob">← Voltar ao catálogo</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

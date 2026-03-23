@@ -1241,13 +1241,39 @@
     });
   }
 
-  // Comprar -> WhatsApp
+  // Comprar -> página do produto
+  const slugMap = {
+    'Redmi Note 13 Pro+': 'redmi-note-13-pro-plus',
+    'Redmi Note 14 Pro': 'redmi-note-14-pro',
+    'Redmi Note 14': 'redmi-note-14',
+    'Redmi Note 14S': 'redmi-note-14s',
+    'Redmi 14C': 'redmi-14c',
+    'Redmi 15C': 'redmi-15c',
+    'Redmi A5': 'redmi-a5',
+    'Redmi Pad 2': 'redmi-pad-2',
+    'Redmi Pad SE': 'redmi-pad-se',
+    'POCO X7 Pro': 'poco-x7-pro',
+    'POCO F6 Pro': 'poco-f6-pro',
+    'POCO F6': 'poco-f6',
+    'POCO M7 Pro': 'poco-m7-pro',
+    'POCO M7': 'poco-m7',
+    'POCO C75': 'poco-c75',
+    'POCO C85': 'poco-c85',
+    'Realme 14 Pro': 'realme-14-pro',
+    'Realme 14T': 'realme-14t',
+    'Realme 14': 'realme-14',
+    'Realme 12': 'realme-12',
+    'Realme Note 70': 'realme-note-70',
+    'Realme C75X': 'realme-c75x',
+    'Realme C75': 'realme-c75',
+    'Realme C71': 'realme-c71',
+    'Infinix Smart 10': 'infinix-smart-10',
+  };
   document.querySelectorAll('.btn-comprar').forEach(btn => {
     btn.addEventListener('click', function() {
-      const nome = this.closest('.produto-card').querySelector('.produto-nome').textContent;
-      const preco = this.closest('.produto-card').querySelector('.produto-preco').textContent;
-      const msg = `Olá! Tenho interesse no ${nome} (${preco}). Pode me passar mais informações?`;
-      window.open(`https://wa.me/55850000000?text=${encodeURIComponent(msg)}`, '_blank');
+      const nome = this.closest('.produto-card').querySelector('.produto-nome').textContent.trim();
+      const slug = slugMap[nome];
+      if (slug) window.location.href = `produto.html?id=${slug}`;
     });
   });
 </script>
