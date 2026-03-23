@@ -108,6 +108,7 @@
       flex: 1; max-width: 420px;
       display: flex; align-items: center;
       background: var(--black-2);
+      position: relative;
       border: 1px solid rgba(0,168,255,0.15);
       border-radius: 50px; overflow: hidden;
       transition: border-color .2s;
@@ -125,6 +126,35 @@
       transition: background .2s;
     }
     .search-btn:hover { background: var(--blue-dark); }
+
+    /* Search dropdown */
+    .search-dropdown {
+      position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+      background: rgba(15,21,32,0.98); backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,168,255,0.2); border-radius: 14px;
+      overflow: hidden; z-index: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      display: none;
+    }
+    .search-dropdown.open { display: block; }
+    .search-result {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px; cursor: pointer;
+      transition: background .15s; text-decoration: none; color: inherit;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .search-result:last-child { border-bottom: none; }
+    .search-result:hover { background: rgba(0,168,255,0.1); }
+    .search-result-img {
+      width: 44px; height: 44px; object-fit: contain;
+      background: var(--black-3); border-radius: 8px; flex-shrink: 0;
+      filter: drop-shadow(0 2px 6px rgba(0,168,255,0.2));
+    }
+    .search-result-info { flex: 1; min-width: 0; }
+    .search-result-nome { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-result-marca { font-size: 11px; color: var(--blue); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .search-result-preco { font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .search-empty { padding: 20px; text-align: center; color: var(--text-mid); font-size: 13px; }
 
     nav { display: flex; gap: 24px; align-items: center; }
     nav a { font-size: 14px; font-weight: 600; color: var(--text-mid); transition: color .2s; }
@@ -569,9 +599,10 @@
       <img src="logo/logomd.png" alt="MD Imports" onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'"/>
       <div id="logo-text" class="logo-text" style="display:none">MD<span>Imports</span></div>
     </div>
-    <div class="search-wrap">
-      <input type="text" class="search-input" placeholder="Buscar celular, marca, modelo..." />
-      <button class="search-btn">Buscar</button>
+    <div class="search-wrap" id="searchWrap">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar celular, marca, modelo..." autocomplete="off"/>
+      <button class="search-btn" onclick="doSearch()">Buscar</button>
+      <div class="search-dropdown" id="searchDropdown"></div>
     </div>
     <nav>
       <a href="#marcas">Marcas</a>
@@ -1280,6 +1311,77 @@
       if (slug) window.location.href = `produto.html?id=${slug}`;
     });
   });
+
+  // ── BUSCA ──
+  const CATALOGO = [
+    { nome:'Redmi Note 13 Pro+', marca:'Xiaomi', preco:'R$ 2.199', img:'CELULARES/note 13pro+.png', slug:'redmi-note-13-pro-plus' },
+    { nome:'Redmi Note 14 Pro',  marca:'Xiaomi', preco:'R$ 1.999', img:'CELULARES/note 14 pro.png', slug:'redmi-note-14-pro' },
+    { nome:'Redmi Note 14',      marca:'Xiaomi', preco:'R$ 1.499', img:'CELULARES/note 14.png',     slug:'redmi-note-14' },
+    { nome:'Redmi Note 14S',     marca:'Xiaomi', preco:'R$ 1.699', img:'CELULARES/note 14s.png',    slug:'redmi-note-14s' },
+    { nome:'Redmi 14C',          marca:'Xiaomi', preco:'R$ 899',   img:'CELULARES/redmi 14c.png',   slug:'redmi-14c' },
+    { nome:'Redmi 15C',          marca:'Xiaomi', preco:'R$ 999',   img:'CELULARES/redmi 15c.png',   slug:'redmi-15c' },
+    { nome:'Redmi A5',           marca:'Xiaomi', preco:'R$ 599',   img:'CELULARES/redmi a5.png',    slug:'redmi-a5' },
+    { nome:'Redmi Pad 2',        marca:'Xiaomi', preco:'R$ 1.299', img:'CELULARES/redmi pad 2.png', slug:'redmi-pad-2' },
+    { nome:'Redmi Pad SE',       marca:'Xiaomi', preco:'R$ 1.099', img:'CELULARES/redmi pad se.png',slug:'redmi-pad-se' },
+    { nome:'POCO X7 Pro',        marca:'POCO',   preco:'R$ 2.499', img:'CELULARES/poco X7 pro.png', slug:'poco-x7-pro' },
+    { nome:'POCO F6 Pro',        marca:'POCO',   preco:'R$ 2.799', img:'CELULARES/poco f6 pro.png', slug:'poco-f6-pro' },
+    { nome:'POCO F6',            marca:'POCO',   preco:'R$ 2.199', img:'CELULARES/poco f6.png',     slug:'poco-f6' },
+    { nome:'POCO M7 Pro',        marca:'POCO',   preco:'R$ 1.599', img:'CELULARES/poco m7 pro.png', slug:'poco-m7-pro' },
+    { nome:'POCO M7',            marca:'POCO',   preco:'R$ 1.299', img:'CELULARES/poco m7.png',     slug:'poco-m7' },
+    { nome:'POCO C75',           marca:'POCO',   preco:'R$ 999',   img:'CELULARES/POCO C75.png',    slug:'poco-c75' },
+    { nome:'POCO C85',           marca:'POCO',   preco:'R$ 1.099', img:'CELULARES/poco c85.png',    slug:'poco-c85' },
+    { nome:'Realme 14 Pro',      marca:'Realme', preco:'R$ 1.999', img:'CELULARES/realme 14 pro.png',slug:'realme-14-pro' },
+    { nome:'Realme 14T',         marca:'Realme', preco:'R$ 1.799', img:'CELULARES/realme 14t.png',  slug:'realme-14t' },
+    { nome:'Realme 14',          marca:'Realme', preco:'R$ 1.499', img:'CELULARES/realme 14.png',   slug:'realme-14' },
+    { nome:'Realme 12',          marca:'Realme', preco:'R$ 1.399', img:'CELULARES/realme 12.png',   slug:'realme-12' },
+    { nome:'Realme Note 70',     marca:'Realme', preco:'R$ 1.199', img:'CELULARES/realme note 70.png',slug:'realme-note-70' },
+    { nome:'Realme C75X',        marca:'Realme', preco:'R$ 1.099', img:'CELULARES/realme c75x.png', slug:'realme-c75x' },
+    { nome:'Realme C75',         marca:'Realme', preco:'R$ 999',   img:'CELULARES/realme c75.png',  slug:'realme-c75' },
+    { nome:'Realme C71',         marca:'Realme', preco:'R$ 799',   img:'CELULARES/realme c71.png',  slug:'realme-c71' },
+    { nome:'Infinix Smart 10',   marca:'Infinix',preco:'R$ 699',   img:'CELULARES/INFINIX SMART 10.png',slug:'infinix-smart-10' },
+  ];
+
+  const searchInput = document.getElementById('searchInput');
+  const searchDropdown = document.getElementById('searchDropdown');
+
+  searchInput.addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    if (q.length < 2) { searchDropdown.classList.remove('open'); return; }
+    const results = CATALOGO.filter(p =>
+      p.nome.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q)
+    ).slice(0, 7);
+    if (results.length === 0) {
+      searchDropdown.innerHTML = `<div class="search-empty">Nenhum produto encontrado para "${this.value}"</div>`;
+    } else {
+      searchDropdown.innerHTML = results.map(p => `
+        <a class="search-result" href="produto.html?id=${p.slug}">
+          <img class="search-result-img" src="${p.img}" alt="${p.nome}"/>
+          <div class="search-result-info">
+            <div class="search-result-marca">${p.marca}</div>
+            <div class="search-result-nome">${p.nome}</div>
+          </div>
+          <div class="search-result-preco">${p.preco}</div>
+        </a>`).join('');
+    }
+    searchDropdown.classList.add('open');
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') searchDropdown.classList.remove('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('searchWrap').contains(e.target)) {
+      searchDropdown.classList.remove('open');
+    }
+  });
+
+  function doSearch() {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) return;
+    const match = CATALOGO.find(p => p.nome.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q));
+    if (match) window.location.href = `produto.html?id=${match.slug}`;
+  }
 </script>
 </body>
 </html>
