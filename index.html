@@ -1306,9 +1306,11 @@
   };
   document.querySelectorAll('.btn-comprar').forEach(btn => {
     btn.addEventListener('click', function() {
-      const nome = this.closest('.produto-card').querySelector('.produto-nome').textContent.trim();
-      const slug = slugMap[nome];
-      if (slug) window.location.href = `produto.html?id=${slug}`;
+      const card = this.closest('.produto-card');
+      const nome  = card.querySelector('.produto-nome').textContent.trim();
+      const preco = card.querySelector('.produto-preco').textContent.trim();
+      const msg = `Olá! Tenho interesse no ${nome} (${preco}). Pode me passar mais informações?`;
+      window.open(`https://wa.me/5585996863834?text=${encodeURIComponent(msg)}`, '_blank');
     });
   });
 
